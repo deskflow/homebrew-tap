@@ -11,6 +11,20 @@ cask "deskflow-dev" do
   desc "Mouse and keyboard sharing utility"
   homepage "https://github.com/deskflow/deskflow"
 
+  livecheck do
+    url :stable
+    regex(/: (\d+\.\d+\.\d+\.\d+(?:\.\d+)$/i)
+    strategy :github_releases do |json, regex|
+    json.map do |release|
+        next if release["draft"]
+        match = release["title"]&.match(regex)
+        next if match.blank?
+
+        match[1]
+      end
+    end
+  end
+
   conflicts_with cask: "deskflow"
 
   depends_on macos: ">= :monterey"
