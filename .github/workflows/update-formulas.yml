@@ -1,0 +1,62 @@
+name: Update Recipes
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+
+jobs:
+  update-recpies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Update -dev package
+        shell: bash
+        run: |
+          export oldVersion=$(cat Casks/d/deskflow-dev.rb | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+          export oldMajor=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '^[0-9]+')
+          export oldMinor=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.' | sed -e 's/\.//g')
+          export oldPatch=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.[0-9]+' | grep -oE '[0-9]+$')
+          export oldTweak=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '[0-9]+$')
+
+          wget https://github.com/deskflow/deskflow/releases/download/continuous/sums.txt -q
+          export newVersion=$(cat sums.txt | grep Build: | sed  -e 's/Build: //g')
+          export newMajor=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '^[0-9]+')
+          export newMinor=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.' | sed -e 's/\.//g')
+          export newPatch=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.[0-9]+' | grep -oE '[0-9]+$')
+          export newTweak=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '[0-9]+$')
+
+          # These will be written into the files
+          echo "VERSION=$(echo $newVersion)">> $GITHUB_ENV
+          export A_SHA=$(cat sums.txt | grep deskflow-continuous-macos-arm64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
+          export I_SHA=$(cat sums.txt | grep deskflow-continuous-macos-x86_64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
+
+
+          if [[ "$oldMajor" -gt "$newMajor" ]]; then
+             echo " major version is not newer"
+             exit 0
+          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -gt "$newMinor" ]; then
+             echo "Minor version is not newer"
+             exit 0
+          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -eq "$newMinor" ] && [ "$oldPatch" -gt "$newPatch" ]; then
+             echo "Patch version is not newer"
+             exit 0
+          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -eq "$newMinor" ] && [ "$oldPatch" -eq "$newPatch" ] && [ "$oldTweak" -gt "$newTweak" ]; then
+             echo "TWEAK version is not newer"
+             exit 0
+          else
+             echo "Newer Version"
+          fi
+
+          sed -i  "s/version \".*\"/version \"$newVersion\"/" Casks/d/deskflow-dev.rb
+          sed -i "s/sha256 arm:.*\".*\", intel: \".*\"/sha256 arm:   \"$A_SHA\", intel: \"$I_SHA\"/" Casks/d/deskflow-dev.rb
+
+          git config --global user.name 'df-bot'
+          git config --global user.email '$df-bot@users.noreply.github.com'
+          git commit Casks/d/deskflow-dev.rb -m "deskflow-dev: $newVersion"
+          git push -u origin HEAD
