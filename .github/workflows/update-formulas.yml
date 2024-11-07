@@ -1,5 +1,6 @@
 name: Update Recipes
 on:
+  workflow_dispatch:
   schedule:
     - cron: "*/20 * * * *"
 
