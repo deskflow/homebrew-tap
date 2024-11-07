@@ -33,34 +33,20 @@ jobs:
           export newTweak=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '[0-9]+$')
 
           # These will be written into the files
-          echo "VERSION=$(echo $newVersion)">> $GITHUB_ENV
           export A_SHA=$(cat sums.txt | grep deskflow-continuous-macos-arm64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
           export I_SHA=$(cat sums.txt | grep deskflow-continuous-macos-x86_64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
 
+          #continuous release can only ever be newer
+          if [[ "$oldVersion" != "$newVersion" ]]; then
+            echo "New Version $newVersion"
+            sed -i  "s/version \".*\"/version \"$newVersion\"/" Casks/d/deskflow-dev.rb
+            sed -i "s/sha256 arm:.*\".*\", intel: \".*\"/sha256 arm:   \"$A_SHA\", intel: \"$I_SHA\"/" Casks/d/deskflow-dev.rb
 
-          if [[ "$oldVersion" == "$newVersion" ]]; then
-             echo " major version is not newer"
-             exit 0
-          elif [[ "$oldMajor" -gt "$newMajor" ]]; then
-             echo " major version is not newer"
-             exit 0
-          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -gt "$newMinor" ]; then
-             echo "Minor version is not newer"
-             exit 0
-          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -eq "$newMinor" ] && [ "$oldPatch" -gt "$newPatch" ]; then
-             echo "Patch version is not newer"
-             exit 0
-          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -eq "$newMinor" ] && [ "$oldPatch" -eq "$newPatch" ] && [ "$oldTweak" -gt "$newTweak" ]; then
-             echo "TWEAK version is not newer"
-             exit 0
+            git config --global user.name 'df-bot'
+            git config --global user.email '$df-bot@users.noreply.github.com'
+            git commit Casks/d/deskflow-dev.rb -m "deskflow-dev: $newVersion"
+            git push -u origin HEAD
           else
-             echo "Newer Version"
+            echo "Same version"
           fi
 
-          sed -i  "s/version \".*\"/version \"$newVersion\"/" Casks/d/deskflow-dev.rb
-          sed -i "s/sha256 arm:.*\".*\", intel: \".*\"/sha256 arm:   \"$A_SHA\", intel: \"$I_SHA\"/" Casks/d/deskflow-dev.rb
-
-          git config --global user.name 'df-bot'
-          git config --global user.email '$df-bot@users.noreply.github.com'
-          git commit Casks/d/deskflow-dev.rb -m "deskflow-dev: $newVersion"
-          git push -u origin HEAD
