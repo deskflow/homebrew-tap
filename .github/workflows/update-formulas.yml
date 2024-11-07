@@ -38,7 +38,10 @@ jobs:
           export I_SHA=$(cat sums.txt | grep deskflow-continuous-macos-x86_64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
 
 
-          if [[ "$oldMajor" -gt "$newMajor" ]]; then
+          if [[ "$oldVersion" == "$newVersion" ]]; then
+             echo " major version is not newer"
+             exit 0
+          elif [[ "$oldMajor" -gt "$newMajor" ]]; then
              echo " major version is not newer"
              exit 0
           elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -gt "$newMinor" ]; then
