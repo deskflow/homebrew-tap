@@ -1,14 +1,20 @@
-name: Update deskflow-dev
+# 2024 Chris Rizzitello <sithord48@gmail.com>
+# Simple job to check if latest tag on deskflow/deskflow was updated
+# Update the cask deskflow with the new version and shas then commit it to this repo
+# Cask recipe must have sha256 line on a single line for this to work
+# Ex: sha256sum arm: "quotedshaArm" intel: "quotedshaforIntel"
+# The Update check does not check the tweak value the deskflow recipe uses only the M.m.p
+# Tweak should always be 0 on the new version (not enfored here just ignored)
+name: Update deskflow
 on:
-  workflow_dispatch:
+  push:
   schedule:
     - cron: "3,23,43 * * * *"
 
 jobs:
-  update-deskflow-dev:
+  update-deskflow:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
 
     steps:
       - name: Checkout
@@ -16,49 +22,35 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Update -dev package
+      - name: Update deskflow cask
         shell: bash
         run: |
-          export oldVersion=$(cat Casks/d/deskflow.rb | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
-          export oldMajor=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '^[0-9]+')
-          export oldMinor=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.' | sed -e 's/\.//g')
-          export oldPatch=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.[0-9]+' | grep -oE '[0-9]+$')
-          export oldTweak=$(echo $oldVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '[0-9]+$')
+          export oldVersion=$(cat Casks/d/deskflow.rb | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          export oldMajor=$(echo $oldVersion | grep -oE '^[0-9]+')
+          export oldMinor=$(echo $oldVersion | grep -oE '\.[0-9]+\.' | sed -e 's/\.//g')
+          export oldPatch=$(echo $oldVersion | grep -oE '[0-9]+$')
 
           curl -s https://api.github.com/repos/deskflow/deskflow/releases/latest | awk -F\" '/browser_download_url/{print $(NF-1)}' | grep sums | wget -q -i -
-
-          export newVersion=$(cat sums.txt | grep Build: | sed  -e 's/Build: //g')
-          export newMajor=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '^[0-9]+')
-          export newMinor=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.' | sed -e 's/\.//g')
-          export newPatch=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '\.[0-9]+\.[0-9]+' | grep -oE '[0-9]+$')
-          export newTweak=$(echo $newVersion | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | grep -oE '[0-9]+$')
+          export newVersion=$(cat sums.txt | grep Build: | sed  -e 's/Build: //g' | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+          export newMajor=$(echo $newVersion | grep -oE '^[0-9]+')
+          export newMinor=$(echo $newVersion | grep -oE '\.[0-9]+\.' | sed -e 's/\.//g')
+          export newPatch=$(echo $newVersion | grep -oE '\.[0-9]+\.[0-9]+' | grep -oE '[0-9]+$')
 
           # These will be written into the files
           export A_SHA=$(cat sums.txt | grep macos-arm64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
           export I_SHA=$(cat sums.txt | grep macos-x86_64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
 
-          if [[ "$oldVersion" == "$newVersion" ]]; then
+          if [ "$oldVersion" == "$newVersion" ]; then
              echo " Same Version"
-             exit 0
-          elif [[ "$oldMajor" -gt "$newMajor" ]]; then
-             echo " major version is not newer"
-             exit 0
-          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -gt "$newMinor" ]; then
-             echo "Minor version is not newer"
-             exit 0
-          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -eq "$newMinor" ] && [ "$oldPatch" -gt "$newPatch" ]; then
-             echo "Patch version is not newer"
-             exit 0
-          elif [ "$oldMajor" -eq "$newMajor" ] && [ "$oldMinor" -eq "$newMinor" ] && [ "$oldPatch" -eq "$newPatch" ] && [ "$oldTweak" -gt "$newTweak" ]; then
-             echo "TWEAK version is not newer"
-             exit 0
+          elif [[ ($oldMajor -gt $newMajor) || ($oldMajor -eq $newMajor &&  $oldMinor -gt $newMinor) || ($oldMajor -eq $newMajor && $oldMinor -eq $newMinor && $oldPatch -gt $newPatch) ]]; then
+             echo "Current version is newer $oldMajor.$oldMinor.$oldPatch > $newMajor.$newMinor.$newPatch"
           else
              echo "New Version $newVersion"
              sed -i  "s/version \".*\"/version \"$newVersion\"/" Casks/d/deskflow.rb
              sed -i "s/sha256 arm:.*\".*\", intel: \".*\"/sha256 arm:   \"$A_SHA\", intel: \"$I_SHA\"/" Casks/d/deskflow.rb
              git config --global user.name "${{github.actor}}"
              git config --global user.email "${{github.actor}}@users.noreply.github.com"
-             git commit Casks/d/deskflow-dev.rb -m "deskflow-dev: $newVersion"
+             git commit Casks/d/deskflow.rb -m "deskflow: $newVersion"
              git push -u origin HEAD
           fi
 

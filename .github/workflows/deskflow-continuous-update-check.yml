@@ -1,3 +1,9 @@
+# 2024 Chris Rizzitello <sithord48@gmail.com>
+# Simple job to check if continuous tag on deskflow/deskflow was updated
+# Update the cask deskflow-dev with the new sha256 sums and commit it to this repo
+# Cask recipe must have sha256 line on a single line for this to work
+# Ex: sha256sum arm: "quotedshaArm" intel: "quotedshaforIntel"
+
 name: Update deskflow-dev
 on:
   workflow_dispatch:
@@ -9,14 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Update -dev package
+      - name: Update deskflow-dev Cask
         shell: bash
         run: |
           export oldVersion=$(cat Casks/d/deskflow-dev.rb | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
