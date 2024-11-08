@@ -19,15 +19,14 @@ jobs:
       - name: Update -dev package
         shell: bash
         run: |
-          echo "run by: ${{github.actor}}"
           export oldVersion=$(cat Casks/d/deskflow-dev.rb | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
 
           wget https://github.com/deskflow/deskflow/releases/download/continuous/sums.txt -q
           export newVersion=$(cat sums.txt | grep Build: | sed  -e 's/Build: //g')
 
           # These will be written into the files
-          export A_SHA=$(cat sums.txt | grep deskflow-continuous-macos-arm64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
-          export I_SHA=$(cat sums.txt | grep deskflow-continuous-macos-x86_64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
+          export A_SHA=$(cat sums.txt | grep macos-arm64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
+          export I_SHA=$(cat sums.txt | grep macos-x86_64.dmg | sed -e 's/des.*//g' | sed -e 's/ //g')
 
           #continuous release can only ever be newer
           if [[ "$oldVersion" != "$newVersion" ]]; then
