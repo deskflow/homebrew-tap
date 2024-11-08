@@ -19,6 +19,7 @@ jobs:
       - name: Update -dev package
         shell: bash
         run: |
+          echo "run by: ${{github.actor}}"
           export oldVersion=$(cat Casks/d/deskflow-dev.rb | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
 
           wget https://github.com/deskflow/deskflow/releases/download/continuous/sums.txt -q
@@ -34,8 +35,8 @@ jobs:
             sed -i  "s/version \".*\"/version \"$newVersion\"/" Casks/d/deskflow-dev.rb
             sed -i "s/sha256 arm:.*\".*\", intel: \".*\"/sha256 arm:   \"$A_SHA\", intel: \"$I_SHA\"/" Casks/d/deskflow-dev.rb
 
-            git config --global user.name "${GITHUB_ACTOR}"
-            git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+            git config --global user.name "${{github.actor}}"
+            git config --global user.email "${{github.actor}}@users.noreply.github.com"
             git commit Casks/d/deskflow-dev.rb -m "deskflow-dev: $newVersion"
             git push -u origin HEAD
           else
