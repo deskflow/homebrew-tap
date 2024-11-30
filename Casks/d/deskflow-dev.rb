@@ -19,7 +19,7 @@ cask "deskflow-dev" do
   postflight do
     system_command "xattr",
                    args: [
-                     "-c", "/Applications/Deskflow.app"
+                     "-c", "#{appdir}/Deskflow.app"
                    ]
   end
 
