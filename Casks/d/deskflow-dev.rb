@@ -1,8 +1,8 @@
 cask "deskflow-dev" do
   arch arm: "arm64", intel: "x86_64"
 
-  version "1.22.0.102"
-  sha256 arm:   "9f09e31ff2bfabbe7260b7c89561ed1f83356e2641b58fbc1edf8772da237721", intel: "d627e9e7c961e5ac4d51cf435fbcae4bd15c0c0d283762c558300f972d00b509"
+  version "1.22.0.103"
+  sha256 arm:   "8756685b15aa188d8b78a63081e28d7477aa1ce99e9b4f0753fe69055a547f95", intel: "7031970b878e006c3f09dad35da00fc213fd9625ceec04e8ab2aa8ec039a0b6b"
 
   url "https://github.com/deskflow/deskflow/releases/download/continuous/deskflow-continuous-macos-#{arch}.dmg",
       verified: "github.com/deskflow/deskflow/"
