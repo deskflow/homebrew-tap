@@ -8,7 +8,7 @@ name: Update deskflow-dev
 on:
   workflow_dispatch:
   schedule:
-    - cron: "2,22,42 * * * *"
+    - cron: "2 0 * * *"
 
 jobs:
   update-deskflow-dev:

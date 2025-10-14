@@ -26,5 +26,4 @@ brew install deskflow-dev
 
 ## Recipe Updates
 
-Recipes are auto updated every 20 minutes
-for this reason users using the `deskflow-dev` install could have frequent updates
+Recipes are auto updated daily
