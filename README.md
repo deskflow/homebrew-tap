@@ -19,7 +19,7 @@ brew install deskflow
 ```
 or
 
-The Continuous Build is built every Deskflow lands a commit. Use this if you want try out lastest code
+The Continuous Build is built daily from the lastest Deskflow commits. Use this if you want try out lastest code
 ```
 brew install deskflow-dev
 ```
