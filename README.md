@@ -7,7 +7,7 @@ A 🍺[Homebrew](https://brew.sh/) tap for [Deskflow](https://github.com/deskflo
 In order to install deskflow you must enable this tap
 
 ```
-brew tap deskflow/homebrew-tap
+brew tap deskflow/tap
 ```
 
 You can then install the following Casks
