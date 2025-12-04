@@ -7,9 +7,6 @@
 # Tweak should always be 0 on the new version (not enfored here just ignored)
 name: Update deskflow
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "3 0 * * *"
   repository_dispatch:
     types: [update_tap]
 

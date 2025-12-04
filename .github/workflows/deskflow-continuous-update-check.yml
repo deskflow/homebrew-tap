@@ -6,9 +6,6 @@
 
 name: Update deskflow-dev
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "2 0 * * *"
   repository_dispatch:
     types: [update_tap]
 
