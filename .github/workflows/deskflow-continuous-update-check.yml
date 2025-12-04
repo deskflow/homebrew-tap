@@ -10,7 +10,7 @@ on:
   schedule:
     - cron: "2 0 * * *"
   repository_dispatch:
-  types: [dispatch-event]
+    types: [update_tap]
 
 jobs:
   update-deskflow-dev:
