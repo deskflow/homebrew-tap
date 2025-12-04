@@ -10,6 +10,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "3 0 * * *"
+  repository_dispatch:
+    types: [dispatch-event]
 
 jobs:
   update-deskflow:
