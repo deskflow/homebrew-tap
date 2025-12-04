@@ -19,11 +19,7 @@ brew install deskflow
 ```
 or
 
-The Continuous Build is built daily from the lastest Deskflow commits. Use this if you want try out lastest code
+The continuous build from the lastest Deskflow commits. Use this if you want try out lastest code
 ```
 brew install deskflow-dev
 ```
-
-## Recipe Updates
-
-Recipes are auto updated daily
