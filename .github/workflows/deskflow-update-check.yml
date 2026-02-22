@@ -1,3 +1,4 @@
+
 # 2024 Chris Rizzitello <sithord48@gmail.com>
 # Simple job to check if latest tag on deskflow/deskflow was updated
 # Update the cask deskflow with the new version and shas then commit it to this repo
@@ -12,12 +13,12 @@ on:
 
 jobs:
   update-deskflow:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     timeout-minutes: 10
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
