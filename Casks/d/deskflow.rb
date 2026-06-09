@@ -12,7 +12,7 @@ cask "deskflow" do
 
   conflicts_with cask: "deskflow-dev"
 
-  depends_on macos: ">= :monterey"
+  depends_on macos: :monterey
 
   app "Deskflow.app"
 
