@@ -8,6 +8,7 @@ In order to install deskflow you must enable this tap
 
 ```
 brew tap deskflow/tap
+brew trust deskflow/tap
 ```
 
 You can then install the following Casks
