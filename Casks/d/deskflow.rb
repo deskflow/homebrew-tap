@@ -15,13 +15,6 @@ cask "deskflow" do
 
   app "Deskflow.app"
 
-  postflight_steps do
-    run "xattr",
-        args: [
-          "-c", "{{appdir}}/Deskflow.app"
-        ]
-  end
-
   zap trash: [
      "~/Library/Saved Application State/Deskflow.savedState",
     "~/Library/Application Support/Deskflow",
